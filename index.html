@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Home &mdash; PsychoPy v1.8</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <script defer src="https://use.fontawesome.com/releases/v5.0.9/js/all.js" integrity="sha384-8iPTk2s/jMVj81dnzb/iFR2sdA7u06vHJyyLlAd4snFpCl/SnyUjRrbdJsw1pGIl" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.85.3',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  </head>
+
+  <body>
+  <nav class="header">
+
+    <div>
+      <a href='http://www.psychopy.org'><img src="_static/psychopyLogoType3.svg" height="150px" alt="PsychoPy logo"/></a>
+    </div>
+    <div>
+        <td style="text-align: center">
+        <a href="http://www.psychopy.org/documentation.html">Documentation</a> | 
+        <a href="http://www.psychopy.org/api/api.html">API</a> | 
+        <a href="http://discourse.psychopy.org/">Forum</a> | 
+        <b><a href="https://github.com/psychopy/psychopy/releases/">Download</a></b> 
+        <br>
+        <p style="font-size:2em">
+        <a href="https://twitter.com/psychopy"><i class="fab fa-twitter-square"></i></a>
+        <a href="https://github.com/psychopy/psychopy"><i class="fab fa-github-square"></i></a>
+        <a href="https://www.facebook.com/PsychoPy"><i class="fab fa-facebook-square"></i></a>
+        </font>
+    </div>
+    <div>
+      <a href='http://www.nottingham.ac.uk'><img src="_static/UoN_Supported_RGB.png" height="100px" alt="University of Nottingham" /></a>
+    </div>
+        <!--
+        <td style="text-align:center;vertical-align:top">
+        <a href='http://discourse.psychopy.org'>Forum</a>
+        </td>
+        <td style="text-align:center;vertical-align:top">
+        <a href='changelog.html'>DOWNLOAD</a>
+        </td>
+        <td style="text-align:center;vertical-align:top">
+        <a href='changelog.html'>GitHub</a>
+        </td>
+        -->
+  </nav>
+
+  <div class="main">
+    
+
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>As an application, PsychoPy has two main views: the <a class="reference internal" href="builder/builder.html"><span class="doc">Builder</span></a> view, and the <a class="reference internal" href="coder/coder.html"><span class="doc">Coder</span></a> view. It also has a underlying <a class="reference internal" href="api/api.html"><span class="doc">API</span></a> that you can call directly.</p>
+<ol class="arabic">
+<li><p class="first"><a class="reference internal" href="builder/builder.html"><span class="doc">Builder</span></a>. You can generate a wide range of experiments easily from the Builder using its intuitive, graphical user interface (GUI). This might be all you ever need to do. But you can always compile your experiment into a python script for fine-tuning, and this is a quick way for experienced programmers to explore some of PsychoPy&#8217;s libraries and conventions.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="_images/builder_sm1.png"><img alt="The Builder view" src="_images/builder_sm1.png" style="width: 40%;" /></a>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><a class="reference internal" href="coder/coder.html"><span class="doc">Coder</span></a>. For those comfortable with programming, the Coder view provides a basic code editor with syntax highlighting, code folding, and so on. Importantly, it has its own output window and Demo menu. The demos illustrate how to do specific tasks or use specific features; they are not whole experiments. The <a class="reference internal" href="coder/coder.html"><span class="doc">Coder tutorials</span></a> should help get you going, and the <a class="reference internal" href="api/api.html"><span class="doc">API reference</span></a> will give you the details.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="_images/coder.png"><img alt="The Coder view" src="_images/coder.png" style="width: 40%;" /></a>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p>The Builder and Coder views are the two main aspects of the PsychoPy application. If you&#8217;ve installed the StandAlone version of PsychoPy on <strong>MS Windows</strong> then there should be an obvious link to PsychoPy in your &gt; Start &gt; Programs. If you installed the StandAlone version on <strong>Mac OS X</strong> then the application is where you put it (!). On these two platforms you can open the Builder and Coder views from the View menu and the default view can be set from the preferences. <strong>On Linux</strong>, you can start PsychoPy from a command line, or make a launch icon (which can depend on the desktop and distro). If the PsychoPy app is started with flags &#8212;-coder (or -c), or &#8212;-builder (or -b), then the preferences will be overridden and that view will be created as the app opens.</p>
+<p>For experienced python programmers, it&#8217;s possible to use PsychoPy without ever opening the Builder or Coder. Install the PsychoPy libraries and dependencies, and use your favorite IDE instead of the Coder.</p>
+<div class="section" id="builder">
+<h2>Builder<a class="headerlink" href="#builder" title="Permalink to this headline">¶</a></h2>
+<p>When learning a new computer language, <a class="reference external" href="http://en.wikipedia.org/wiki/Hello_world_program">the classic first program</a> is simply to print or display &#8220;Hello world!&#8221;. Lets do it.</p>
+<div class="section" id="a-first-program">
+<h3>A first program<a class="headerlink" href="#a-first-program" title="Permalink to this headline">¶</a></h3>
+<p>Start PsychoPy, and be sure to be in the Builder view.</p>
+<ul>
+<li><p class="first">If you have poked around a bit in the Builder already, be sure to start with a clean slate. To get a new Builder view, type <cite>Ctrl-N</cite> on Windows or Linux, or <cite>Cmd-N</cite> on Mac.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Click on a Text component</dt>
+<dd><img alt="_images/text.png" class="first last" src="_images/text.png" />
+</dd>
+<dt>and a Text Properties dialog will pop up.</dt>
+<dd><a class="first last reference internal image-reference" href="_images/textdialog.png"><img alt="_images/textdialog.png" src="_images/textdialog.png" style="width: 220px;" /></a>
+</dd>
+</dl>
+</li>
+<li><p class="first">In the <cite>Text</cite> field, replace the default text with your message. When you run the program, the text you type here will be shown on the screen.</p>
+</li>
+<li><p class="first">Click OK (near the bottom of the dialog box). (Properties dialogs have a link to online help&#8212;an icon at the bottom, near the OK button.)</p>
+</li>
+<li><p class="first">Your text component now resides in a routine called <cite>trial</cite>. You can click on it to view or edit it. (Components, Routines, and other Builder concepts are explained in the <a class="reference internal" href="builder/builder.html"><span class="doc">Builder documentation</span></a>.)</p>
+</li>
+<li><dl class="first docutils">
+<dt>Back in the main Builder, type <cite>Ctrl-R</cite> (Windows, Linux) or <cite>Cmd-R</cite> (Mac), or use the mouse to click the <cite>Run</cite> icon.</dt>
+<dd><img alt="_images/run32.png" class="first last" src="_images/run32.png" />
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>Assuming you typed in &#8220;Hello world!&#8221;, your screen should have looked like this (briefly):</dt>
+<dd><a class="first last reference internal image-reference" href="_images/helloworld.png"><img alt="_images/helloworld.png" src="_images/helloworld.png" style="width: 220px;" /></a>
+</dd>
+</dl>
+<p>If nothing happens or it looks wrong, recheck all the steps above; be sure to start from a new Builder view.</p>
+<p>What if you wanted to display your cheerful greeting for longer than the default time?</p>
+<ul class="simple">
+<li>Click on your Text component (the existing one, not a new one).</li>
+<li>Edit the <cite>Stop duration (s)</cite> to be <cite>3.2</cite>; times are in seconds.</li>
+<li>Click OK.</li>
+<li>And finally <cite>Run</cite>.</li>
+</ul>
+<p>When running an experiment, you can quit by pressing the <cite>escape</cite> key (this can be configured or disabled). You can quit PsychoPy from the File menu, or typing <cite>Ctrl-Q</cite> / <cite>Cmd-Q</cite>.</p>
+</div>
+<div class="section" id="getting-beyond-hello">
+<h3>Getting beyond Hello<a class="headerlink" href="#getting-beyond-hello" title="Permalink to this headline">¶</a></h3>
+<p>To do more, you can try things out and see what happens. You may want to consult the <a class="reference internal" href="builder/builder.html"><span class="doc">Builder documentation</span></a>. Many people find it helpful to explore the Builder demos, in part to see what is possible, and especially to see how different things are done.</p>
+<p>A good way to develop your own first PsychoPy experiment is to base it on the Builder demo that seems closest. Copy it, and then adapt it step by step to become more and more like the program you have in mind. Being familiar with the Builder demos can only help this process.</p>
+<p>You could stop here, and just use the Builder for creating your experiments. It provides a lot of the key features that people need to run a wide variety of studies. But it does have its limitations. When you want to have more complex designs or features, you&#8217;ll want to investigate the Coder. As a segue to the Coder, lets start from the Builder, and see how Builder programs work.</p>
+</div>
+</div>
+<div class="section" id="builder-to-coder">
+<h2>Builder-to-coder<a class="headerlink" href="#builder-to-coder" title="Permalink to this headline">¶</a></h2>
+<p>Whenever you run a Builder experiment, PsychoPy will first translate it into python code, and then execute that code.</p>
+<p>To get a better feel for what was happening &#8220;behind the scenes&#8221; in the Builder program above:</p>
+<ul>
+<li><p class="first">In the Builder, load or recreate your &#8220;hello world&#8221; program.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Instead of running the program, explicitly convert it into python: Type <cite>F5</cite>, or click the <cite>Compile</cite> icon:</dt>
+<dd><img alt="_images/compile32.png" class="first last" src="_images/compile32.png" />
+</dd>
+</dl>
+</li>
+</ul>
+<p>The view will automatically switch to the Coder, and display the python code. If you then save and run this code, it would look the same as running it directly from the Builder.</p>
+<p>It is always possible to go from the Builder to python code in this way. You can then edit that code and run it as a python program. However, you cannot go from code back to a Builder representation.</p>
+<p>To switch quickly between Builder and Coder views, you can type <cite>Ctrl-L</cite> / <cite>Cmd-L</cite>.</p>
+</div>
+<div class="section" id="coder">
+<h2>Coder<a class="headerlink" href="#coder" title="Permalink to this headline">¶</a></h2>
+<p>Being able to inspect Builder-generated code is nice, but it&#8217;s possible to write code yourself, directly. With the Coder and various libraries, you can do virtually anything that your computer is capable of doing, using a full-featured modern programming language (python).</p>
+<p>For variety, lets say hello to the Spanish-speaking world. PsychoPy knows Unicode (UTF-8).</p>
+<p>If you are not in the Coder, switch to it now.</p>
+<ul>
+<li><p class="first">Start a new code document: <cite>Ctrl-N</cite> / <cite>Cmd-N</cite>.</p>
+</li>
+<li><p class="first">Type (or copy &amp; paste) the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">psychopy</span> <span class="k">import</span> <span class="n">visual</span><span class="p">,</span> <span class="n">core</span>
+
+<span class="n">win</span> <span class="o">=</span> <span class="n">visual</span><span class="o">.</span><span class="n">Window</span><span class="p">()</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="n">visual</span><span class="o">.</span><span class="n">TextStim</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sa">u</span><span class="s2">&quot;</span><span class="se">\u00A1</span><span class="s2">Hola mundo!&quot;</span><span class="p">)</span>
+
+<span class="n">msg</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+<span class="n">win</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+<span class="n">core</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">win</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Save the file (the same way as in Builder).</p>
+</li>
+<li><p class="first">Run the script.</p>
+</li>
+</ul>
+<p>Note that the same events happen on-screen with this code version, despite the code being much simpler than the code generated by the Builder. (The Builder actually does more, such as prompt for a subject number.)</p>
+<p><strong>Coder Shell</strong></p>
+<p>The shell provides an interactive python interpreter, which means you can enter commands here to try them out. This provides yet another way to send your salutations to the world. By default, the Coder&#8217;s output window is shown at the bottom of the Coder window. Click on the Shell tab, and you should see python&#8217;s interactive prompt, <cite>&gt;&gt;&gt;</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>PyShell in PsychoPy - type some commands!
+
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt;
+</pre></div>
+</div>
+<p>At the prompt, type:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="se">\u00A1</span><span class="s2">Hola mundo!&quot;</span>
+</pre></div>
+</div>
+<p>You can do more complex things, such as type in each line from the Coder example directly into the Shell window, doing so line by line:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">psychopy</span> <span class="k">import</span> <span class="n">visual</span><span class="p">,</span> <span class="n">core</span>
+</pre></div>
+</div>
+<p>and then:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">win</span> <span class="o">=</span> <span class="n">visual</span><span class="o">.</span><span class="n">Window</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>and so on&#8212;watch what happens each line::</dt>
+<dd><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="n">visual</span><span class="o">.</span><span class="n">TextStim</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sa">u</span><span class="s2">&quot;</span><span class="se">\u00A1</span><span class="s2">Hola mundo!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">win</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>and so on. This lets you try things out and see what happens line-by-line (which is how python goes through your program).</p>
+
+  </div> //body
+
+  <div class="footer">
+    <center>footer here</center>
+  </div>
+
+  </body>
+</html>
