@@ -1,0 +1,12 @@
+pip install pyserial
+pip install configobj
+pip install future
+pip install matplotlib pandas pyglet pillow moviepy lxml openpyxl
+pip install lazy-import
+pip install json_tricks
+pip install python-bidi
+pip install wxPython
+pip install requests[security]
+pip install python-gitlab
+pip install astunparse
+pip install esprima
