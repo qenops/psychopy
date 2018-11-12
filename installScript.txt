@@ -10,3 +10,4 @@ pip install requests[security]
 pip install python-gitlab
 pip install astunparse
 pip install esprima
+pip install PyQt5
