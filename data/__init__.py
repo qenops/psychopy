@@ -9,7 +9,8 @@ from .base import DataHandler
 from .experiment import ExperimentHandler
 from .trial import TrialHandler, TrialHandler2, TrialHandlerExt, TrialType
 from .staircase import (StairHandler, QuestHandler, PsiHandler,
-                        MultiStairHandler)
+                        MultiStairHandler, ExtendedMultiStairHandler, 
+                        PESTstandardHandler, PESTvirulentHandler)
 
 from .utils import (checkValidFilePath, isValidVariableName, importTrialTypes,
                     sliceFromString, indicesFromString, importConditions,

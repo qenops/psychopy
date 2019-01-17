@@ -1718,3 +1718,390 @@ class MultiStairHandler(_BaseTrialHandler):
             label = thisStair.condition['label']
             thisStair.saveAsText(fileName='stdout', delim=delim,
                                  matrixOnly=thisMatrixOnly)
+
+class ExtendedMultiStairHandler(MultiStairHandler):
+    ''' Handles 'pest' as the stairhandler '''
+    def _checkArguments(self):
+        # Did we get a `conditions` parameter, correctly formatted?
+        if not isinstance(self.conditions, collections.Iterable):
+            raise TypeError(
+                '`conditions` parameter passed to MultiStairHandler '
+                'should be a list, not a %s.' % type(self.conditions))
+
+        c0 = self.conditions[0]
+        if not isinstance(c0, dict):
+            raise TypeError(
+                '`conditions` passed to MultiStairHandler should be a '
+                'list of python dictionaries, not a list of %ss.' %
+                type(c0))
+
+        # Did `conditions` contain the things we need?
+        params = list(c0.keys())
+        if self.type.lower() not in ['simple', 'quest', 'pest', 'vpest']:
+            raise ValueError(
+                'MultiStairHandler `stairType` should be \'simple\', '
+                '\'pest\', \'vpest\', or \'quest\', not \'%s\'' % self.type)
+
+        if 'startVal' not in params:
+            raise AttributeError('MultiStairHandler needs a parameter called '
+                                 '`startVal` in conditions')
+        if 'label' not in params:
+            raise AttributeError('MultiStairHandler needs a parameter called'
+                                 ' `label` in conditions')
+        if self.type.lower() == 'quest' and 'startValSd' not in params:
+            raise AttributeError(
+                'MultiStairHandler needs a parameter called '
+                '`startValSd` in conditions for QUEST staircases.')
+
+    def _createStairs(self):
+        for condition in self.conditions:
+            # We create a copy, because we are going to remove items from
+            # this dictionary in this loop, but don't want these
+            # changes to alter the originals in self.conditions.
+            args = dict(condition)
+
+            # If no individual `nTrials` parameter was supplied for this
+            # staircase, use the `nTrials` that were passed to
+            # the MultiStairHandler on instantiation.
+            if 'nTrials' not in args:
+                args['nTrials'] = self.nTrials
+
+            if self.type.lower() == 'simple':
+                startVal = args.pop('startVal')
+                thisStair = StairHandler(startVal, **args)
+            elif self.type.lower() == 'pest':
+                startVal = args.pop('startVal')
+                thisStair = PESTstandardHandler(startVal, **args)
+            elif self.type.lower() == 'vpest':
+                startVal = args.pop('startVal')
+                thisStair = PESTvirulentHandler(startVal, **args)
+            elif self.type.lower() == 'quest':
+                startVal = args.pop('startVal')
+                startValSd = args.pop('startValSd')
+                thisStair = QuestHandler(startVal, startValSd, **args)
+
+            # This isn't normally part of handler.
+            thisStair.condition = condition
+
+            # And finally, add it to the list.
+            self.staircases.append(thisStair)
+            self.runningStaircases.append(thisStair)
+
+class PESTstandardHandler(StairHandler):
+    ''' Includes PEST heuristics by Taylor and Creelman [1967] '''
+    def __init__(self,
+                 startVal,
+                 nReversals=None,
+                 stepSizes=4,  # lin stepsize
+                 nTrials=100,
+                 extraInfo=None,
+                 method='2AFC',
+                 stepType='lin',
+                 minVal=None,
+                 maxVal=None,
+                 originPath=None,
+                 name='',
+                 autoLog=True,
+                 pest_w=1,
+                 **kwargs):
+        nUp = 1
+        nDown = 1
+        self.applyInitialRule = False
+        StairHandler.__init__(self,
+                              startVal=startVal,
+                              nReversals=nReversals,
+                              stepSizes=stepSizes,
+                              nTrials=nTrials,
+                              nUp=nUp,
+                              nDown=nDown,
+                              applyInitialRule=self.applyInitialRule,
+                              extraInfo=extraInfo,
+                              method=method,
+                              stepType=stepType,
+                              minVal=minVal,
+                              maxVal=maxVal,
+                              originPath=originPath,
+                              name=name,
+                              autoLog=autoLog,
+                              **kwargs)
+        self.currentStepSizeIdx = 0
+        self.currentDirectionStepCount = 0
+        countAlternative = int(method.lower().replace("afc", ""))
+        pRandomGuess = 1.0 / countAlternative
+        self.targetProb = pRandomGuess + (1.0 - pRandomGuess) / 2.0
+        self.pest_w = pest_w
+        self.isDoubled = False  # flag for Rule 3
+        self.stepChangeidx = 0
+        self.isConverged = False
+
+    @property
+    def isConverged(self):
+        return self.__isConverged
+
+    @isConverged.setter
+    def isConverged(self, convergeFlag):
+        self.__isConverged = convergeFlag
+
+    def calculateNextIntensity(self):
+        trialN = len(self.data)
+        countTrials = trialN - self.stepChangeidx
+        expectedCorrect = countTrials * self.targetProb
+        upperBound, lowerBound = \
+            expectedCorrect + self.pest_w, \
+            expectedCorrect - self.pest_w
+        numCorrect = sum(self.data[self.stepChangeidx:])
+
+        if numCorrect > upperBound:
+            if self.currentDirection in ['up', 'start']:
+                reversal = True
+            else:
+                # direction is 'down'
+                reversal = False
+            self.currentDirection = 'down'
+        elif numCorrect < lowerBound:
+            if self.currentDirection in ['down', 'start']:
+                reversal = True
+            else:
+                # direction is 'up'
+                reversal = False
+            # now:
+            self.currentDirection = 'up'
+        else:
+            reversal = False
+
+        # add reversal info
+        if reversal:
+            self.currentDirectionStepCount = 0
+            self.reversalPoints.append(self.thisTrialN)
+            if not self.reversalIntensities and self.applyInitialRule:
+                self.initialRule = True
+            self.reversalIntensities.append(self.intensities[-1])
+
+        # take the step
+        if numCorrect > upperBound:
+            self._intensityDec()
+            self.stepChangeidx = trialN
+        elif numCorrect < lowerBound:
+            self._intensityInc()
+            self.stepChangeidx = trialN
+
+        if trialN >= self.nTrials:
+            self.isConverged = False
+            self.finished = True
+
+        # compute the new step size
+        if self._variableStep and not (lowerBound <= numCorrect <= upperBound):
+            if reversal:
+                # Rule 1: halve the stepsize after reversal
+                self.currentStepSizeIdx += 1
+                if self.currentStepSizeIdx >= len(self.stepSizes):
+                    # we've gone beyond the list of step sizes
+                    self.currentStepSizeIdx = len(self.stepSizes) - 1
+                    self.isConverged = False
+                    self.finished = True  # terminate when the stepsize falls below minimum
+            else:
+                self.currentDirectionStepCount += 1
+                if self.currentDirectionStepCount >= 4:
+                    # Rule 3
+                    self.currentStepSizeIdx -= 1
+                    self.isDoubled = True
+                elif self.currentDirectionStepCount >= 3:
+                    # Rule 4
+                    if self.isDoubled:
+                        self.isDoubled = False
+                    else:
+                        self.currentStepSizeIdx -= 1
+                        self.isDoubled = True
+                if self.currentStepSizeIdx < 0:
+                    self.currentStepSizeIdx = 0
+            self.stepSizeCurrent = self.stepSizes[self.currentStepSizeIdx]
+        
+        # show current status of the experiment on the console
+        print("Total trials: %d, Trials after step change: %d, Correct: %d (%.2f%%), Expected: %.2f (%.2f%%), Current Direction: %s, Current Stepsize: %d" %
+            (trialN,
+             countTrials,
+             numCorrect,
+             float(numCorrect)/countTrials*100,
+             expectedCorrect,
+             self.targetProb*100,
+             self.currentDirection,
+             self.stepSizes[self.currentStepSizeIdx]))
+
+
+class PESTvirulentHandler(StairHandler):
+    ''' Virulent PEST by Findlay [1978] '''
+    def __init__(self,
+                 startVal,
+                 nReversals=None,
+                 stepSizes=4,  # lin stepsize
+                 nTrials=100,
+                 extraInfo=None,
+                 method='2AFC',
+                 stepType='lin',
+                 minVal=None,
+                 maxVal=None,
+                 originPath=None,
+                 name='',
+                 autoLog=True,
+                 findlay_m=8,  # number of trials before decrementing the stepsize
+                 **kwargs):
+        nUp = 1
+        nDown = 1
+        self.applyInitialRule = False
+        StairHandler.__init__(self,
+                              startVal=startVal,
+                              nReversals=nReversals,
+                              stepSizes=stepSizes,
+                              nTrials=nTrials,
+                              nUp=nUp,
+                              nDown=nDown,
+                              applyInitialRule=self.applyInitialRule,
+                              extraInfo=extraInfo,
+                              method=method,
+                              stepType=stepType,
+                              minVal=minVal,
+                              maxVal=maxVal,
+                              originPath=originPath,
+                              name=name,
+                              autoLog=autoLog,
+                              **kwargs)
+        self.currentStepSizeIdx = 0
+        self.currentDirectionStepCount = 0
+        countAlternative = int(method.lower().replace("afc", ""))
+        pRandomGuess = 1.0 / countAlternative
+        self.targetProb = pRandomGuess + (1.0 - pRandomGuess) / 2.0
+        self.isDoubled = False  # flag for Rule 3
+        self.stepChangeidx = 0
+        self.stimuliLevelTrialCounts = []
+        self.currentLevelTrialCount = 0
+        self.findlay_m=findlay_m
+        self.pest_w=0.5
+        self.isConverged = False
+
+    @property
+    def isConverged(self):
+        return self.__isConverged
+
+    @isConverged.setter
+    def isConverged(self, convergeFlag):
+        self.__isConverged = convergeFlag
+
+    def calculateNextIntensity(self):
+        trialN = len(self.data)
+        countTrials = trialN - self.stepChangeidx
+        expectedCorrect = countTrials * self.targetProb
+        # Findlay's second modification
+        if self.currentStepSizeIdx <= 0:
+            self.pest_w = 0.5
+        else:
+            self.pest_w = int((self.currentStepSizeIdx+1) / 2.0)
+        upperBound, lowerBound = \
+            expectedCorrect + self.pest_w, \
+            expectedCorrect - self.pest_w
+        numCorrect = sum(self.data[self.stepChangeidx:])
+        self.currentLevelTrialCount += 1
+
+        if numCorrect > upperBound:
+            if self.currentDirection in ['up', 'start']:
+                reversal = True
+            else:
+                # direction is 'down'
+                reversal = False
+            self.currentDirection = 'down'
+        elif numCorrect < lowerBound:
+            if self.currentDirection in ['down', 'start']:
+                reversal = True
+            else:
+                # direction is 'up'
+                reversal = False
+            # now:
+            self.currentDirection = 'up'
+        else:
+            reversal = False
+
+        # Findlay's first modification
+        stepChange = int(self.currentLevelTrialCount / self.findlay_m)
+        
+        effectiveStepIdx = self.currentStepSizeIdx + stepChange
+
+        # take the step
+        if not (lowerBound <= numCorrect <= upperBound):
+            effectiveStepIdx = self.currentStepSizeIdx + stepChange
+            if effectiveStepIdx < 0:
+                effectiveStepIdx = 0
+            elif effectiveStepIdx >= len(self.stepSizes):
+                effectiveStepIdx = len(self.stepSizes) - 1
+                self.finished = True
+            self.currentStepSizeIdx = effectiveStepIdx
+            self.stepSizeCurrent = self.stepSizes[self.currentStepSizeIdx]
+            if numCorrect > upperBound:
+                self.stimuliLevelTrialCounts.append(self.currentLevelTrialCount)
+                self._intensityDec()
+                self.stepChangeidx = trialN
+            elif numCorrect < lowerBound:
+                self.stimuliLevelTrialCounts.append(self.currentLevelTrialCount)
+                self._intensityInc()
+                self.stepChangeidx = trialN
+
+        if trialN >= self.nTrials:
+            self.isConverged = False
+            self.finished = True
+
+        # add reversal info
+        if reversal:
+            self.currentDirectionStepCount = 0
+            self.reversalPoints.append(self.thisTrialN)
+            if not self.reversalIntensities and self.applyInitialRule:
+                self.initialRule = True
+            if self.intensities:
+                self.reversalIntensities.append(self.intensities[-1])
+            else:
+                self.reversalIntensities.append(self.startVal)
+
+        # compute the new step size
+        if self._variableStep and not (lowerBound <= numCorrect <= upperBound):
+            self.currentLevelTrialCount = 0
+            if reversal:
+                # Rule 1: halve the stepsize after reversal
+                self.currentStepSizeIdx += 1
+                if self.currentStepSizeIdx >= len(self.stepSizes):
+                    self.currentStepSizeIdx = len(self.stepSizes) - 1
+                    self.isConverged = True
+                    self.finished = True
+            else:
+                self.currentDirectionStepCount += 1
+                if self.currentDirectionStepCount >= 4:
+                    # Rule 3
+                    self.currentStepSizeIdx -= 1
+                    self.isDoubled = True
+                elif self.currentDirectionStepCount >= 3:
+                    # Rule 4
+                    if self.isDoubled:
+                        self.isDoubled = False
+                    else:
+                        self.currentStepSizeIdx -= 1
+                        self.isDoubled = True
+                if self.currentStepSizeIdx < 0:
+                    self.currentStepSizeIdx = 0
+            self.stepSizeCurrent = self.stepSizes[self.currentStepSizeIdx]
+
+        # stop the experiment if the stepsize gets too small
+        if lowerBound <= numCorrect <= upperBound:
+            if effectiveStepIdx >= len(self.stepSizes):
+                self.currentStepSizeIdx = len(self.stepSizes) - 1
+                self.stepSizeCurrent = self.stepSizes[self.currentStepSizeIdx]
+                self.isConverged = True
+                self.finished = True
+        
+        # show current status of the experiment on the console
+        print("Total trials: %d, Trials after step change: %d, Correct: %d (%.2f%%), Expected: %.2f (%.2f%%), Current Direction: %s, Current Stepsize: %d, Current w: %.1f, Stepchange: %d" %
+            (trialN,
+             countTrials,
+             numCorrect,
+             float(numCorrect)/countTrials*100,
+             expectedCorrect,
+             self.targetProb*100,
+             self.currentDirection,
+             self.stepSizes[self.currentStepSizeIdx],
+             self.pest_w,
+             stepChange))
