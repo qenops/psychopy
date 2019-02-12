@@ -1995,6 +1995,8 @@ class PESTvirulentHandler(StairHandler):
             self.pest_w = 0.5
         else:
             self.pest_w = int((self.currentStepSizeIdx+1) / 2.0)
+        if self.currentLevelTrialCount < 2 and self.pest_w == 0.5:        # correct for hyper-sensitivity to first incorrect responses
+            self.pest_w = 1.0
         upperBound, lowerBound = \
             expectedCorrect + self.pest_w, \
             expectedCorrect - self.pest_w
@@ -2024,7 +2026,9 @@ class PESTvirulentHandler(StairHandler):
         
         effectiveStepIdx = self.currentStepSizeIdx + stepChange
 
-        # take the step
+        # setup the step
+        decrement = False
+        increment = False
         if not (lowerBound <= numCorrect <= upperBound):
             effectiveStepIdx = self.currentStepSizeIdx + stepChange
             if effectiveStepIdx < 0:
@@ -2036,11 +2040,11 @@ class PESTvirulentHandler(StairHandler):
             self.stepSizeCurrent = self.stepSizes[self.currentStepSizeIdx]
             if numCorrect > upperBound:
                 self.stimuliLevelTrialCounts.append(self.currentLevelTrialCount)
-                self._intensityDec()
+                decrement = True
                 self.stepChangeidx = trialN
             elif numCorrect < lowerBound:
                 self.stimuliLevelTrialCounts.append(self.currentLevelTrialCount)
-                self._intensityInc()
+                increment = True
                 self.stepChangeidx = trialN
 
         if trialN >= self.nTrials:
@@ -2051,8 +2055,8 @@ class PESTvirulentHandler(StairHandler):
         if reversal:
             self.currentDirectionStepCount = 0
             self.reversalPoints.append(self.thisTrialN)
-            if not self.reversalIntensities and self.applyInitialRule:
-                self.initialRule = True
+            #if not self.reversalIntensities and self.applyInitialRule:
+            #    self.initialRule = True
             if self.intensities:
                 self.reversalIntensities.append(self.intensities[-1])
             else:
@@ -2093,8 +2097,14 @@ class PESTvirulentHandler(StairHandler):
                 self.isConverged = True
                 self.finished = True
         
+        # take the step:
+        if decrement:
+            self._intensityDec()
+        if increment:
+            self._intensityInc()
+            
         # show current status of the experiment on the console
-        print("Total trials: %d, Trials after step change: %d, Correct: %d (%.2f%%), Expected: %.2f (%.2f%%), Current Direction: %s, Current Stepsize: %d, Current w: %.1f, Stepchange: %d" %
+        print("Total trials: %d, Trials after step change: %d, Correct: %d (%.2f%%), Expected: %.2f (%.2f%%), Current Direction: %s, Current Stepsize: %d, Current w: %.1f, Stepchange: %d, Next Intensity: %s, Reversal: %s" %
             (trialN,
              countTrials,
              numCorrect,
@@ -2104,4 +2114,6 @@ class PESTvirulentHandler(StairHandler):
              self.currentDirection,
              self.stepSizes[self.currentStepSizeIdx],
              self.pest_w,
-             stepChange))
+             stepChange,
+             self._nextIntensity,
+             reversal))
