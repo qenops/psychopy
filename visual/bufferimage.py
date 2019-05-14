@@ -218,15 +218,21 @@ class BufferImageStim(ImageStim):
         self._selectWindow(win)
 
         GL.glPushMatrix()  # preserve state
+        win.setScale('pix')
         # GL.glLoadIdentity()
 
         # dynamic flip
-        GL.glScalef(self.thisScale[0] * (1, -1)[self.flipHoriz],
-                    self.thisScale[1] * (1, -1)[self.flipVert], 1.0)
+        #GL.glScalef(self.thisScale[0] * (1, -1)[self.flipHoriz],
+        #            self.thisScale[1] * (1, -1)[self.flipVert], 1.0)
 
         # enable dynamic position, orientation, opacity; depth not working?
         GL.glColor4f(self.desiredRGB[0], self.desiredRGB[1],
                      self.desiredRGB[2], self.opacity)
+
+        #if self._needTextureUpdate:
+        #    self.setImage(value=self._imName, log=False)
+        if self._needUpdate:
+            self._updateList()
 
         GL.glCallList(self._listID)  # make it happen
         GL.glPopMatrix()  # return the view to previous state
